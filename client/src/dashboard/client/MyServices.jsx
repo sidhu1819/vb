@@ -97,26 +97,18 @@ const ServiceRequestModal = ({ isOpen, onClose, onSuccess }) => {
                   <label className="block text-sm text-gray-300 mb-1">Description</label>
                   <textarea {...register('description', { required: true })} rows={4} className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:border-[#00c6ff] focus:outline-none" placeholder="Describe your requirements..." />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm text-gray-300 mb-1">Budget Range</label>
-                    <select {...register('budget', { required: true })} className="w-full bg-[#1a1f36] border border-white/10 rounded-lg p-3 text-white focus:border-[#00c6ff] focus:outline-none appearance-none">
-                      <option value="">Select...</option>
-                      <option value="<$1K">Under $1k</option>
-                      <option value="$1K-$5K">$1k - $5k</option>
-                      <option value="$5K-$10K">$5k - $10k</option>
-                      <option value="$10K+">$10k+</option>
-                    </select>
+                    <label className="block text-sm text-gray-300 mb-1">Budget (USD)</label>
+                    <input type="number" placeholder="Enter your budget" {...register('budget', { required: true, min: 1 })} className="w-full bg-[#1a1f36] border border-white/10 rounded-lg p-3 text-white focus:border-[#00c6ff] focus:outline-none" />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-300 mb-1">Timeline</label>
-                    <select {...register('timeline', { required: true })} className="w-full bg-[#1a1f36] border border-white/10 rounded-lg p-3 text-white focus:border-[#00c6ff] focus:outline-none appearance-none">
-                      <option value="">Select...</option>
-                      <option value="1 month">1 Month</option>
-                      <option value="2-3 months">2-3 Months</option>
-                      <option value="3-6 months">3-6 Months</option>
-                      <option value="Flexible">Flexible</option>
-                    </select>
+                    <label className="block text-sm text-gray-300 mb-1">Start Date</label>
+                    <input type="date" {...register('startDate', { required: true })} className="w-full bg-[#1a1f36] border border-white/10 rounded-lg p-3 text-white focus:border-[#00c6ff] focus:outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-300 mb-1">End Date</label>
+                    <input type="date" {...register('endDate', { required: true })} className="w-full bg-[#1a1f36] border border-white/10 rounded-lg p-3 text-white focus:border-[#00c6ff] focus:outline-none" />
                   </div>
                 </div>
                 <div className="flex justify-between mt-8">
@@ -132,8 +124,8 @@ const ServiceRequestModal = ({ isOpen, onClose, onSuccess }) => {
                 <div className="bg-white/5 p-4 rounded-xl space-y-3">
                   <p><span className="text-gray-400">Service:</span> {type}</p>
                   <p><span className="text-gray-400">Title:</span> {watch('title')}</p>
-                  <p><span className="text-gray-400">Budget:</span> {watch('budget')}</p>
-                  <p><span className="text-gray-400">Timeline:</span> {watch('timeline')}</p>
+                  <p><span className="text-gray-400">Budget:</span> ${watch('budget')}</p>
+                  <p><span className="text-gray-400">Timeline:</span> {watch('startDate')} to {watch('endDate')}</p>
                 </div>
                 <div className="bg-white/5 p-4 rounded-xl">
                   <p className="text-gray-400 mb-1">Description:</p>
@@ -235,8 +227,8 @@ const MyServices = () => {
                 <p className="text-gray-400 text-sm mb-6 line-clamp-2">{s.description}</p>
 
                 <div className="flex justify-between items-center text-sm border-t border-white/10 pt-4">
-                  <span className="text-gray-300">Budget: <span className="text-white font-medium">{s.budget}</span></span>
-                  <span className="text-gray-300">Timeline: <span className="text-white font-medium">{s.timeline}</span></span>
+                  <span className="text-gray-300">Budget: <span className="text-white font-medium">${s.budget}</span></span>
+                  <span className="text-gray-300">Timeline: <span className="text-white font-medium">{s.startDate ? `${new Date(s.startDate).toLocaleDateString()} to ${new Date(s.endDate).toLocaleDateString()}` : 'N/A'}</span></span>
                 </div>
               </Link>
             ))}

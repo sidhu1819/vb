@@ -125,11 +125,13 @@ const ServiceDetail = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-gray-500 mb-1">Estimated Budget</p>
-                    <p className="text-white font-medium">{service.budget}</p>
+                    <p className="text-white font-medium">${service.budget}</p>
                   </div>
                   <div>
                     <p className="text-gray-500 mb-1">Timeline</p>
-                    <p className="text-white font-medium">{service.timeline}</p>
+                    <p className="text-white font-medium">
+                      {service.startDate ? `${new Date(service.startDate).toLocaleDateString()} to ${new Date(service.endDate).toLocaleDateString()}` : 'N/A'}
+                    </p>
                   </div>
                 </div>
               </div>

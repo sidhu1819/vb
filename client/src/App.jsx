@@ -18,6 +18,7 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import VerifyOTP from './pages/auth/VerifyOTP';
 import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
 import ChangePassword from './pages/auth/ChangePassword';
 
 // Client Dashboard
@@ -83,6 +84,7 @@ function AppContent() {
           <Route path="/auth/register" element={<Register />} />
           <Route path="/auth/verify-otp" element={<VerifyOTP />} />
           <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/auth/change-password" element={<ChangePassword />} />
         </Route>
 

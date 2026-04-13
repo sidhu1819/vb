@@ -120,7 +120,7 @@ router.post('/approve', async (req, res) => {
       userId: service.clientId._id,
       title: 'Payment Approved ✅',
       message: `Your payment for Milestone ${milestone} of ${service.title} has been verified! Content unlocked.`,
-      type: 'payment'
+      type: 'success'
     });
 
     const emailHtml = `
@@ -164,7 +164,7 @@ router.post('/reject', async (req, res) => {
       userId: service.clientId._id,
       title: 'Payment Rejected ❌',
       message: `Your payment proof for Milestone ${milestone} was rejected. Reason: ${reason}`,
-      type: 'payment'
+      type: 'warning'
     });
 
     const emailHtml = `

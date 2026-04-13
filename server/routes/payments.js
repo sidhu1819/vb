@@ -70,7 +70,7 @@ router.post('/upload-proof', uploadProof.single('proof'), async (req, res) => {
       userId: service.assignedTo || req.user._id, // Send to admin or self
       title: 'New Payment Proof',
       message: `Client ${req.user.name} uploaded proof for Milestone ${milestone} of ${service.title}.`,
-      type: 'payment'
+      type: 'info'
     });
 
     // Send confirmation email to client

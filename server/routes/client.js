@@ -56,23 +56,26 @@ import { sendEmail } from '../utils/emailService.js';
 
 router.post('/services', async (req, res) => {
   try {
-    const { title, description, serviceType, budget, timeline } = req.body;
+    const { title, description, serviceType, budget, startDate, endDate } = req.body;
     
-    // Extract numeric budget for calculations
-    const numericBudget = parseInt(budget.replace(/[^0-9]/g, '')) || 500; // Default fallback
-    const isUSD = budget.includes('$');
+    // Validate dates
+    if (new Date(endDate) <= new Date(startDate)) {
+      return res.status(400).json({ message: 'End date must be after start date' });
+    }
+
+    const numericBudget = Number(budget);
     const exchangeRate = 84;
-    
-    const totalUsd = isUSD ? numericBudget : Math.round(numericBudget / exchangeRate);
-    const totalInr = isUSD ? Math.round(numericBudget * exchangeRate) : numericBudget;
+    const totalUsd = numericBudget;
+    const totalInr = Math.round(numericBudget * exchangeRate);
 
     const service = await ServiceRequest.create({
       clientId: req.user._id,
       title,
       description,
       serviceType,
-      budget, // String like "$1K-$5K"
-      timeline,
+      budget: numericBudget,
+      startDate,
+      endDate,
       status: 'pending',
       budget_usd: totalUsd,
       budget_inr: totalInr,
@@ -84,7 +87,7 @@ router.post('/services', async (req, res) => {
     user.activeServices.push(service._id);
     await user.save();
 
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const clientUrl = process.env.CLIENT_URL;
 
     // Email to Client
     await sendEmail({
@@ -95,8 +98,8 @@ router.post('/services', async (req, res) => {
         clientName: user.name,
         serviceType,
         title,
-        budget,
-        timeline,
+        budget: numericBudget,
+        timeline: `${startDate} to ${endDate}`,
         serviceId: service._id,
         client_url: clientUrl
       }

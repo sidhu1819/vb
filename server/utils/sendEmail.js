@@ -41,7 +41,7 @@ export const sendWelcomeEmail = async (to, name) => {
     const templatePath = path.join(__dirname, '../templates/welcomeEmail.html');
     let html = fs.readFileSync(templatePath, 'utf8');
     html = html.replace('{{USER_NAME}}', name)
-               .replace('{{CLIENT_URL}}', process.env.CLIENT_URL || 'http://localhost:5173');
+               .replace('{{CLIENT_URL}}', process.env.CLIENT_URL);
 
     await transporter.sendMail({
       from: `"VB Software Solutions" <${process.env.EMAIL_USER}>`,

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Lock, CheckCircle2, Upload, QrCode, Smartphone, Copy, Check } from 'lucide-react';
+import { X, Lock, CheckCircle2, Upload, QrCode, Smartphone, Copy, Check, RefreshCw, Loader2 } from 'lucide-react';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
@@ -55,15 +55,6 @@ export const PaymentModal = ({ isOpen, onClose, service, milestoneData, onSucces
     if (!transactionId.trim()) return toast.error('Transaction ID is required');
     setUploading(true);
     
-    const genericData = new FormData();
-    // Support the new generic payment API
-    genericData.append('screenshot', file);
-    genericData.append('transactionId', transactionId);
-    genericData.append('amount', milestoneData.amount_inr || 0);
-    genericData.append('service_id', service._id);
-    genericData.append('milestone', milestoneData.milestone);
-
-    // Legacy support
     const legacyData = new FormData();
     legacyData.append('proof', file);
     legacyData.append('transactionId', transactionId);
@@ -71,14 +62,10 @@ export const PaymentModal = ({ isOpen, onClose, service, milestoneData, onSucces
     legacyData.append('milestone', milestoneData.milestone);
 
     try {
-      // Create new generic Payment document to satisfy generic prompt requirement
-      await api.post('/payments', genericData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      // Also hit legacy route to complete the milestone specifically
       await api.post('/payments/upload-proof', legacyData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
+
       setSuccessMode(true);
       setTimeout(() => {
         onSuccess();

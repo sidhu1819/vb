@@ -103,7 +103,7 @@ router.put('/services/:id/status', async (req, res) => {
       cancelled: "Your project has been cancelled. Contact us."
     };
 
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const clientUrl = process.env.CLIENT_URL;
 
     await sendEmail({
       to: service.clientId.email,
@@ -229,7 +229,7 @@ router.post('/users/create', requireRole('founder'), async (req, res) => {
       mustChangePassword: true
     });
 
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const clientUrl = process.env.CLIENT_URL;
     const isClient = role === 'client';
     
     await sendEmail({

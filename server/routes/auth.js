@@ -1,11 +1,12 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import User from '../models/User.js';
 import OTP from '../models/OTP.js';
 import { generateOTP, hashOTP, verifyOTP } from '../utils/generateOTP.js';
 import { generateTokens } from '../utils/generateTokens.js';
-import { sendOTPEmail, sendWelcomeEmail } from '../utils/sendEmail.js';
+import { sendOTPEmail, sendWelcomeEmail, sendEmail } from '../utils/sendEmail.js';
 import { otpRateLimiter, resendOtpLimiter } from '../middleware/rateLimiter.js';
 import { authenticateJWT } from '../middleware/authenticate.js';
 
@@ -108,32 +109,62 @@ router.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'User not found' });
-    await createAndSendOTP(user, 'reset-password');
-    res.json({ message: 'Password reset OTP sent', userId: user._id });
+    
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = await bcrypt.hash(resetToken, 12);
+    
+    await OTP.updateMany({ userId: user._id, purpose: 'reset-password', used: false }, { used: true });
+
+    await OTP.create({
+      userId: user._id,
+      email: user.email,
+      code: hashedToken, // Storing hashed token for security
+      purpose: 'reset-password',
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 mins expiry
+    });
+
+    const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}?email=${encodeURIComponent(user.email)}`;
+    
+    const htmlContent = `
+      <h2>Password Reset Request</h2>
+      <p>Hello ${user.name},</p>
+      <p>You requested to reset your password. Please click the link below to set a new password:</p>
+      <a href="${resetLink}" style="display: inline-block; padding: 10px 20px; background: #00c6ff; color: #fff; text-decoration: none; border-radius: 5px;">Reset Password</a>
+      <p>If you did not request this, please ignore this email.</p>
+    `;
+
+    await sendEmail(user.email, 'Password Reset Request', htmlContent);
+
+    res.json({ message: 'Password reset link sent to your email' });
   } catch (error) {
+    console.error('Forgot password error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
 router.post('/reset-password', async (req, res) => {
   try {
-    const { userId, otp, newPassword } = req.body;
-    const otpRecord = await OTP.findOne({ userId, purpose: 'reset-password', used: false }).sort({ createdAt: -1 });
+    const { email, token, newPassword } = req.body;
+    const otpRecord = await OTP.findOne({ email, purpose: 'reset-password', used: false }).sort({ createdAt: -1 });
     
-    if (!otpRecord || otpRecord.expiresAt < new Date()) return res.status(400).json({ message: 'Invalid or expired OTP' });
-    const isValid = await verifyOTP(otp, otpRecord.code);
-    if (!isValid) return res.status(400).json({ message: 'Incorrect OTP' });
+    if (!otpRecord || otpRecord.expiresAt < new Date()) {
+       return res.status(400).json({ message: 'Invalid or expired reset link' });
+    }
+    
+    const isValid = await bcrypt.compare(token, otpRecord.code);
+    if (!isValid) return res.status(400).json({ message: 'Invalid token' });
 
     otpRecord.used = true;
     await otpRecord.save();
 
-    const user = await User.findById(userId);
+    const user = await User.findOne({ email });
     const salt = await bcrypt.genSalt(12);
     user.password = await bcrypt.hash(newPassword, salt);
     await user.save();
 
     res.json({ message: 'Password reset successfully' });
   } catch (error) {
+    console.error('Reset password error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

@@ -50,12 +50,12 @@ const DraggableCard = ({ service }) => {
       <p className="text-xs text-gray-400 mb-3 truncate">{service.clientId?.name || 'Unknown Client'}</p>
       
       <div className="flex justify-between items-center text-xs mt-3 pt-3 border-t border-white/5">
-        <span className="text-gray-500">{service.timeline}</span>
+        <span className="text-gray-500">{service.startDate ? `${new Date(service.startDate).toLocaleDateString()} to ${new Date(service.endDate).toLocaleDateString()}` : 'N/A'}</span>
         <div className="flex items-center gap-3">
           {service.messages?.length > 0 && (
             <span className="flex items-center gap-1 text-gray-400"><MessageSquare size={12}/>{service.messages.length}</span>
           )}
-          <span className="font-bold text-[#00c6ff]">{service.budget}</span>
+          <span className="font-bold text-[#00c6ff]">${service.budget}</span>
         </div>
       </div>
     </div>

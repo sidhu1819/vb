@@ -63,14 +63,6 @@ const PaymentPage = () => {
         setUploading(true);
         console.log("Submitting Payment Details to API...");
         
-        const genericData = new FormData();
-        genericData.append('screenshot', file);
-        genericData.append('transactionId', transactionId);
-        genericData.append('paymentDate', paymentDate);
-        genericData.append('amount', milestoneData.amount_inr || 0);
-        genericData.append('service_id', service._id);
-        genericData.append('milestone', milestoneData.milestone);
-
         const legacyData = new FormData();
         legacyData.append('proof', file); 
         legacyData.append('transactionId', transactionId);
@@ -78,12 +70,6 @@ const PaymentPage = () => {
         legacyData.append('milestone', milestoneData.milestone);
 
         try {
-            // New generic Payment endpoint
-            await api.post('/payments', genericData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            
-            // Legacy milestone update endpoint
             await api.post('/payments/upload-proof', legacyData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
