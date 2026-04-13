@@ -1,0 +1,15 @@
+<div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #1a1f36; background-color: #04060f; color: #fff; border-radius: 12px;">
+  <h2 style="color: #00c6ff;">Welcome to VB Software Solutions Admin Panel</h2>
+  <p>Hello <strong>{{name}}</strong>,</p>
+  <p>Your admin account has been created by M Siddhartha Reddy.</p>
+  <div style="background-color: #1a1f36; padding: 15px; border-radius: 8px; margin: 20px 0;">
+    <p><strong>Login Email:</strong> {{email}}</p>
+    <p><strong>Temp Password:</strong> <span style="color: #00c6ff; font-family: monospace;">{{tempPassword}}</span></p>
+    <p><strong>Admin Portal:</strong> <a style="color: #00c6ff;" href="{{client_url}}/auth/login">{{client_url}}/auth/login</a></p>
+  </div>
+  <p style="color: #ffaa00;">⚠ You will be asked to set a new password on first login.</p>
+  <p>Keep this email safe.</p>
+  <div style="text-align: center; margin-top: 30px;">
+    <a href="{{client_url}}/auth/login" style="background-color: #00c6ff; color: #04060f; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">Login to Admin Dashboard →</a>
+  </div>
+</div>

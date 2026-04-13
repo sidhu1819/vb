@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #04060f;
+  --color-cyan: #00c6ff;
+  --color-purple: #7b5ea7;
+  --font-sans: 'Outfit', sans-serif;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: #ffffff;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
