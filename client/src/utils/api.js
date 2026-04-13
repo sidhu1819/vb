@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true 
+  withCredentials: true
 });
 
 api.interceptors.request.use(config => {
@@ -26,18 +26,18 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const res = await axios.post(`${api.defaults.baseURL}/auth/refresh-token`, {}, { withCredentials: true });
-        
+
         if (res.data.accessToken) {
           localStorage.setItem('token', res.data.accessToken);
           api.defaults.headers.common['Authorization'] = `Bearer ${res.data.accessToken}`;
-          
+
           // CRITICAL FIX: Ensure the retried request explicitly uses the new token
           if (originalRequest.headers) {
-             originalRequest.headers['Authorization'] = `Bearer ${res.data.accessToken}`;
+            originalRequest.headers['Authorization'] = `Bearer ${res.data.accessToken}`;
           } else {
-             originalRequest.headers = { Authorization: `Bearer ${res.data.accessToken}` };
+            originalRequest.headers = { Authorization: `Bearer ${res.data.accessToken}` };
           }
-          
+
           return api(originalRequest);
         }
       } catch (refreshError) {
