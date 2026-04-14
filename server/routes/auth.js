@@ -37,13 +37,24 @@ router.post('/register', (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     let { email, password } = req.body;
-    if (email) email = email.toLowerCase().trim();
+    console.log(`[LOGIN DEBUG] Incoming Request - Email: '${email}', Password length: ${password?.length}`);
+
+    if (!email || !password) {
+      console.log(`[LOGIN DEBUG] Missing email or password in request body.`);
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    email = email.toLowerCase().trim();
     
     const user = await User.findOne({ email });
-    console.log(`[LOGIN DEBUG] Checking user: ${email}`);
-    if (!user || !user.password) {
-      console.log(`[LOGIN DEBUG] User not found or no password hash present in DB.`);
-      return res.status(400).json({ message: 'Invalid credentials or google auth user' });
+    if (!user) {
+      console.log(`[LOGIN DEBUG] User NOT found for email: ${email}`);
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+    
+    if (!user.password) {
+      console.log(`[LOGIN DEBUG] User found but no password hash exists (Google Auth User?).`);
+      return res.status(400).json({ message: 'Please log in with Google for this account' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
