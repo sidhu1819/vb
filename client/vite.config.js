@@ -8,11 +8,13 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          three: ['three'],
-        },
-      },
-    },
+        manualChunks(id) {
+          if (id.includes('three')) {
+            return 'three';
+          }
+        }
+      }
+    }
   },
 
   optimizeDeps: {
