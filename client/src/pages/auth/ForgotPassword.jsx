@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { motion } from 'framer-motion';
 import { KeyRound, Loader2, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import api from '../../../utils/api';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 
 const emailSchema = z.object({
