@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation, Outlet, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -47,12 +47,21 @@ function PublicLayout() {
   const isAuth = location.pathname.startsWith('/auth');
 
   return (
-    <div className="flex flex-col min-h-screen relative">
+    <div className="flex flex-col min-h-screen w-full bg-[#04060f] text-white relative">
       {!isAuth && <Navbar />}
-      <main className="flex-grow">
+      {/* Explicit min-h-screen to ensure content always pushes the footer down safely */}
+      <main className="flex-grow flex flex-col w-full relative">
         <AnimatePresence mode="wait">
-          {/* Framer motion wraps outlet for page transitions without remounting the Router */}
-          <Outlet key={location.pathname.split('?')[0]} />
+          <motion.div
+            key={location.pathname.split('?')[0]}
+            className="flex-grow flex flex-col w-full h-full"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Outlet />
+          </motion.div>
         </AnimatePresence>
       </main>
       {!isAuth && <Footer />}
