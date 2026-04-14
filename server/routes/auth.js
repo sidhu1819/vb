@@ -58,7 +58,7 @@ router.post('/login', async (req, res) => {
     console.log("Password match:", isMatch);
 
     const tokens = generateTokens(user._id, user.role);
-    res.cookie('refreshToken', tokens.refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
+    res.cookie('refreshToken', tokens.refreshToken, { httpOnly: true, secure: true, sameSite: 'none', maxAge: 7 * 24 * 60 * 60 * 1000 });
     res.json({ 
       accessToken: tokens.accessToken, 
       user: { _id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar },
@@ -92,7 +92,7 @@ router.post('/refresh-token', async (req, res) => {
     if (!user) return res.status(401).json({ message: 'Invalid token' });
 
     const tokens = generateTokens(user._id, user.role);
-    res.cookie('refreshToken', tokens.refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
+    res.cookie('refreshToken', tokens.refreshToken, { httpOnly: true, secure: true, sameSite: 'none', maxAge: 7 * 24 * 60 * 60 * 1000 });
     res.json({ accessToken: tokens.accessToken });
   } catch (error) {
     res.status(403).json({ message: 'Invalid or expired refresh token' });
@@ -100,7 +100,7 @@ router.post('/refresh-token', async (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
-  res.clearCookie('refreshToken');
+  res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: 'none' });
   res.json({ message: 'Logged out successfully' });
 });
 

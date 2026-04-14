@@ -1,34 +1,54 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+import User from './models/User.js';
+import connectDB from './config/db.js';
 
-mongoose.connect('mongodb://127.0.0.1:27017/vb_solutions').then(async () => {
-  const User = mongoose.model('User', new mongoose.Schema({ name: String, email: String, password: String, role: String, isVerified: Boolean }, { strict: false }));
-  const ServiceRequest = mongoose.model('ServiceRequest', new mongoose.Schema({}, { strict: false }));
+dotenv.config();
 
-  await User.deleteMany({});
-  await ServiceRequest.deleteMany({});
-  
-  const pass = await bcrypt.hash('password123', 10);
-  
-  const client = await User.create({ name: 'Test Client', email: 'client@example.com', password: pass, role: 'client', isVerified: true });
-  await User.create({ name: 'Admin', email: 'admin@example.com', password: pass, role: 'founder', isVerified: true });
-  
-  const service = await ServiceRequest.create({
-    clientId: client._id,
-    title: 'Test Service Request',
-    description: 'Testing the frontend features...',
-    serviceType: 'Web Development',
-    budget: '$1K-$5K',
-    timeline: '1-3 months',
-    status: 'pending',
-    budget_usd: 1000,
-    budget_inr: 84000,
-    exchange_rate: 84,
-    milestonePayments: []
-  });
+const seedUsers = async () => {
+  try {
+    await connectDB();
 
-  await User.updateOne({ _id: client._id }, { $push: { activeServices: service._id }});
-  
-  console.log('Seeded database!');
-  process.exit(0);
-}).catch(console.error);
+    const salt = await bcrypt.genSalt(12);
+    const password = await bcrypt.hash('password123', salt);
+
+    // Create Admin
+    const adminExists = await User.findOne({ email: 'admin@vb.in' });
+    if (!adminExists) {
+      await User.create({
+        name: 'Admin',
+        email: 'admin@vb.in',
+        password,
+        role: 'founder',
+        isEmailVerified: true
+      });
+      console.log('Admin user created: admin@vb.in');
+    } else {
+      console.log('Admin already exists');
+    }
+
+    // Create Client
+    const clientExists = await User.findOne({ email: 'client@demo.in' });
+    if (!clientExists) {
+      await User.create({
+        name: 'Test Client',
+        email: 'client@demo.in',
+        password,
+        role: 'client',
+        isEmailVerified: true
+      });
+      console.log('Client user created: client@demo.in');
+    } else {
+      console.log('Client already exists');
+    }
+
+    mongoose.connection.close();
+    console.log('Database seeding completed.');
+  } catch (error) {
+    console.error('Error seeding data:', error);
+    process.exit(1);
+  }
+};
+
+seedUsers();
