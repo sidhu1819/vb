@@ -34,7 +34,17 @@ const __dirname = path.dirname(__filename);
 
 // 🔥 CORS FIX (important for Vercel)
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin: function (origin, callback) {
+    const allowed = [
+      "https://vbsoftwaresolutions.vercel.app",
+      "http://localhost:5173"
+    ];
+    if (!origin || allowed.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
 }));
 
