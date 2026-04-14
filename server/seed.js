@@ -1,54 +1,68 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '.env') });
+
 import User from './models/User.js';
-import connectDB from './config/db.js';
 
-dotenv.config();
-
-const seedUsers = async () => {
+const connectDB = async () => {
   try {
-    await connectDB();
-
-    const salt = await bcrypt.genSalt(12);
-    const password = await bcrypt.hash('password123', salt);
-
-    // Create Admin
-    const adminExists = await User.findOne({ email: 'admin@vb.in' });
-    if (!adminExists) {
-      await User.create({
-        name: 'Admin',
-        email: 'admin@vb.in',
-        password,
-        role: 'founder',
-        isEmailVerified: true
-      });
-      console.log('Admin user created: admin@vb.in');
-    } else {
-      console.log('Admin already exists');
-    }
-
-    // Create Client
-    const clientExists = await User.findOne({ email: 'client@demo.in' });
-    if (!clientExists) {
-      await User.create({
-        name: 'Test Client',
-        email: 'client@demo.in',
-        password,
-        role: 'client',
-        isEmailVerified: true
-      });
-      console.log('Client user created: client@demo.in');
-    } else {
-      console.log('Client already exists');
-    }
-
-    mongoose.connection.close();
-    console.log('Database seeding completed.');
+    const uri = process.env.MONGO_URI;
+    console.log("Connecting carefully to:", uri ? "URI FOUND ✅" : "URI MISSING ❌");
+    await mongoose.connect(uri);
+    console.log("MongoDB Connection established.");
   } catch (error) {
-    console.error('Error seeding data:', error);
+    console.error("MongoDB Connection Failed:", error);
     process.exit(1);
   }
 };
 
-seedUsers();
+const runSeed = async () => {
+  await connectDB();
+
+  try {
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash('password123', salt);
+
+    console.log("Generated hash for 'password123':", passwordHash);
+
+    // Wipe old attempts if they exist
+    await User.deleteOne({ email: 'admin@vb.in' });
+    await User.deleteOne({ email: 'client@demo.in' });
+
+    // Seed Admin
+    const admin = await User.create({
+      name: 'VB Admin',
+      email: 'admin@vb.in',
+      password: passwordHash,
+      role: 'founder',
+      isEmailVerified: true,
+      isOtpEnabled: false
+    });
+    console.log("Successfully seeded Admin:", admin.email);
+
+    // Seed Client
+    const client = await User.create({
+      name: 'Demo Client',
+      email: 'client@demo.in',
+      password: passwordHash,
+      role: 'client',
+      isEmailVerified: true,
+      isOtpEnabled: false
+    });
+    console.log("Successfully seeded Client:", client.email);
+
+  } catch (err) {
+    console.error("Seeding Error:", err);
+  } finally {
+    mongoose.connection.close();
+    console.log("Database connection closed.");
+  }
+};
+
+runSeed();

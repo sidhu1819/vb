@@ -40,10 +40,18 @@ router.post('/login', async (req, res) => {
     if (email) email = email.toLowerCase().trim();
     
     const user = await User.findOne({ email });
-    if (!user || !user.password) return res.status(400).json({ message: 'Invalid credentials or google auth user' });
+    console.log(`[LOGIN DEBUG] Checking user: ${email}`);
+    if (!user || !user.password) {
+      console.log(`[LOGIN DEBUG] User not found or no password hash present in DB.`);
+      return res.status(400).json({ message: 'Invalid credentials or google auth user' });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+    console.log(`[LOGIN DEBUG] bcrypt.compare result for ${email}:`, isMatch);
+    if (!isMatch) {
+      console.log(`[LOGIN DEBUG] Provided plain text password did not match stored hash for ${email}`);
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
     
     // Safety check for unverified emails
     if (!user.isEmailVerified) {
