@@ -48,7 +48,7 @@ const Home = () => {
         <div className="max-w-5xl mx-auto px-4">
 
           <motion.a
-            href="https://githun1819.github.io/portfolio/"
+            href="https://github.com/sidhu1819/portfolio"
             target="_blank"
             rel="noopener noreferrer"
             initial={{ opacity: 0, y: 30 }}
